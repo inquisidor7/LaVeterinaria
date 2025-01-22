@@ -1,2 +1,2 @@
-# LaVeterinaria
+# La_Veterinaria
 Reto 2
