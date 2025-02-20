@@ -18,19 +18,22 @@ class Persona:
     def __str__(self):
         return f"Nombre: {self.nombre}, Contacto: {self.contacto}, Dirección: {self.direccion}"
 
+
 class Cliente(Persona):
-    def __init__(self, nombre, contacto, direccion):
+    def __init__(self, cc, nombre, contacto, direccion):
+        self.cc = cc
         super().__init__(nombre, contacto, direccion)
-    
+
     def __str__(self):
-        return f"Cliente: {self.nombre}, Contacto: {self.contacto}, Dirección: {self.direccion}"
+        return f"Cliente: {self.cc}, {self.nombre}, Contacto: {self.contacto}, Dirección: {self.direccion}"
+
 
 class ClienteManager:
     def __init__(self):
         self.clientes = []
-    
-    def crear_cliente(self, nombre, contacto, direccion):
-        cliente = Cliente(nombre, contacto, direccion)
+
+    def crear_cliente(self, cc, nombre, contacto, direccion):
+        cliente = Cliente(cc, nombre, contacto, direccion)
         self.clientes.append(cliente)
         return cliente
 
@@ -38,51 +41,87 @@ class ClienteManager:
         for cliente in self.clientes:
             print(cliente)
 
-def registrar_cliente(manager):
+
+def registrar_cliente():
+    cc = int(input("Ingrese el numero de identificacion del cliente: "))
     nombre = input("Ingrese el nombre del cliente: ")
-    contacto = int(input("Ingrese el contacto del cliente (10 dígitos): "))
+    while True:
+        contacto = input("Ingrese el contacto del cliente (10 dígitos): ")
+        if contacto.isdigit() and len(contacto) == 10:
+            contacto = int(contacto)
+            break
+        else:
+            print("⚠️ El contacto debe ser un número de 10 dígitos. Por favor, intente de nuevo.")
     direccion = input("Ingrese la dirección del cliente: ")
     try:
-        cliente = manager.crear_cliente(nombre, contacto, direccion)
-        print("Cliente registrado con éxito:")
+        cliente = manager.crear_cliente(cc, nombre, contacto, direccion)
+        print("✅ Cliente registrado con éxito:")
         print(cliente)
     except ValueError as e:
         print(f"Error: {e}")
 
+
 def registrar_mascota():
-    print("Función registrar_mascota aún no implementada.")
+    try:
+        id_cliente = input("Ingrese el número de documento del cliente: ").strip()
+        cliente = next((c for c in manager.clientes if str(c.cc) == id_cliente), None)
+
+        if not cliente:
+            print("⚠️ Cliente no encontrado. Procediendo a registrar cliente.")
+            registrar_cliente()
+            cliente = manager.clientes[-1]  # Obtenemos el último cliente registrado
+
+        nombre_mascota = input("Ingrese el nombre de la mascota: ").strip()
+        especie = input("Ingrese la especie: ")
+        raza = input("Ingrese la raza: ")
+        edad = int(input("Ingrese la edad: ").strip())
+
+        if not nombre_mascota or not especie or not raza or edad <= 0:
+            raise ValueError("Uno de los datos ingresados no es válido.")
+
+        print(f"La mascota ha sido registrada con éxito para el cliente {cliente.nombre}")
+        print(f"Mascota: {nombre_mascota}, Especie: {especie}, Raza: {raza}, Edad: {edad}")
+    except ValueError as e:
+        print(f"⚠️ Error: {e}")
+
 
 def programar_cita():
-    print("Función programar_cita aún no implementada.")
+    print("📅 Programando cita...")
+
 
 def consultar_historial():
-    print("Función consultar_historial aún no implementada.")
+    print("📋 Consultando historial...")
+
 
 def salir():
-    print("Saliendo del sistema.")
+    print("❌ Sistema Finalizado")
+    exit()
 
-def menu():
-    opciones = {
-        "1": lambda: registrar_cliente(manager),
-        "2": registrar_mascota,
-        "3": programar_cita,
-        "4": consultar_historial,
-        "5": salir
-    }
-    while True:
-        print("\nMenú:")
-        print("1. Registrar Cliente")
-        print("2. Registrar Mascota")
-        print("3. Programar Cita")
-        print("4. Consultar Historial")
-        print("5. Salir")
-        opcion = input("Seleccione una opción: ")
-        accion = opciones.get(opcion)
-        if accion:
-            accion()
-        else:
-            print("Opción no válida, intente de nuevo.")
+def mostrar_menu():
+    print("🐾 Bienvenido al sistema de gestión de la veterinaria.")
+    print("Seleccione una opción:")
+    print("1. 🧑‍💼 Registrar cliente")
+    print("2. 🐶 Registrar mascota")
+    print("3. 📅 Programar cita")
+    print("4. 📋 Consultar historial")
+    print("5. ❌ Salir")
 
-# Inicializar manager y ejecutar el menú
+
+opciones = {
+    "1": registrar_cliente,
+    "2": registrar_mascota,
+    "3": programar_cita,
+    "4": consultar_historial,
+    "5": salir
+}
+
+# Inicializar manager
 manager = ClienteManager()
-menu()
+
+while True:
+    mostrar_menu()
+    opcion = input("Ingrese el número de la opción deseada: ")
+    if opcion in opciones:
+        opciones[opcion]()
+    else:
+        print("⚠️ Opción no válida, por favor intente de nuevo.")
